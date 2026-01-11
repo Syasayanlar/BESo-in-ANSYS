@@ -17,10 +17,1388 @@
   Local memory required for in-core solution     =     36.143 MB
   Local memory required for out-of-core solution =     14.300 MB
 
- *** NOTE ***                            CP =       0.766   TIME= 23:19:38
+ *** NOTE ***                            CP =       0.688   TIME= 23:46:26
  The Distributed Sparse Matrix Solver is currently running in the        
  in-core memory mode.  This memory mode uses the most amount of memory   
  in order to avoid using the hard drive as much as possible, which most  
  often results in the fastest solution time.  This mode is recommended   
  if enough physical memory is present to accommodate all of the solver   
  data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.859   0.000055
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.250   0.000016
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.875 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         1.391
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       1.719   TIME= 23:46:41
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.031   0.000066
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.078   0.000005
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.875 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         2.438
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       2.750   TIME= 23:46:56
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.891   0.000057
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.250   0.000016
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         3.453
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       3.719   TIME= 23:47:12
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.062   0.000068
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.031   0.000002
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         4.391
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       4.703   TIME= 23:47:27
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.000   0.000064
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.062   0.000004
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         5.406
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       5.719   TIME= 23:47:42
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.062   0.000068
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.016   0.000001
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         6.422
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       6.750   TIME= 23:47:57
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.016   0.000065
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.094   0.000006
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         7.406
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       7.703   TIME= 23:48:12
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.016   0.000065
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.125   0.000008
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         8.375
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       8.703   TIME= 23:48:27
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.016   0.000065
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.094   0.000006
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         9.422
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =       9.719   TIME= 23:48:42
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.969   0.000062
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.141   0.000009
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        10.438
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      10.750   TIME= 23:48:57
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.016   0.000065
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.125   0.000008
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        11.469
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      11.797   TIME= 23:49:12
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.000   0.000064
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.094   0.000006
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        2.000 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        12.500
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      12.844   TIME= 23:49:27
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.000   0.000064
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.062   0.000004
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        2.000 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        13.562
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      13.922   TIME= 23:49:42
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.031   0.000066
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.062   0.000004
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        2.000 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        14.719
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      15.016   TIME= 23:49:56
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.047   0.000067
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.047   0.000003
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        2.000 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        15.703
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      16.016   TIME= 23:50:11
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.938   0.000060
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.156   0.000010
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        16.719
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      17.031   TIME= 23:50:26
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.984   0.000063
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.125   0.000008
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        17.734
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      18.047   TIME= 23:50:40
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.031   0.000066
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.109   0.000007
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        18.734
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      19.094   TIME= 23:50:54
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.031   0.000066
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.078   0.000005
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        19.750
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      20.062   TIME= 23:51:08
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.953   0.000061
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.156   0.000010
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        20.703
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      21.031   TIME= 23:51:22
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.953   0.000061
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.078   0.000005
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        21.797
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      22.141   TIME= 23:51:36
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.969   0.000062
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.125   0.000008
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        22.812
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      23.141   TIME= 23:51:50
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.000   0.000064
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.062   0.000004
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        23.828
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      24.141   TIME= 23:52:04
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.969   0.000062
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.125   0.000008
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        24.828
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      25.188   TIME= 23:52:17
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.938   0.000060
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.156   0.000010
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        25.875
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      26.188   TIME= 23:52:31
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.031   0.000066
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.094   0.000006
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        26.859
+
+
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   TIME AT END OF THE LOAD STEP. . . . . . . . . .  1.0000    
+   NUMBER OF SUBSTEPS. . . . . . . . . . . . . . .     1
+   STEP CHANGE BOUNDARY CONDITIONS . . . . . . . .    NO
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS. . . . . . . . . . . .ALL DATA WRITTEN
+                                                  FOR THE LAST SUBSTEP
+
+
+
+  Local memory allocated for solver              =     37.795 MB
+  Local memory required for in-core solution     =     36.143 MB
+  Local memory required for out-of-core solution =     14.300 MB
+
+ *** NOTE ***                            CP =      27.203   TIME= 23:52:45
+ The Distributed Sparse Matrix Solver is currently running in the        
+ in-core memory mode.  This memory mode uses the most amount of memory   
+ in order to avoid using the hard drive as much as possible, which most  
+ often results in the fastest solution time.  This mode is recommended   
+ if enough physical memory is present to accommodate all of the solver   
+ data.                                                                   
+
+   *** ELEMENT RESULT CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      1.062   0.000068
+
+   *** NODAL LOAD CALCULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1     15625  SOLID185      0.078   0.000005
+ *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
+ *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_5.full
+        1.562 MB WRITTEN ON RESULTS FILE: beso_2020_5.rst
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =        27.859
+
+
+
+ ***** END OF INPUT ENCOUNTERED *****
+
+
+ NUMBER OF WARNING MESSAGES ENCOUNTERED=          0
+ NUMBER OF ERROR   MESSAGES ENCOUNTERED=          0
+
+
+ *---------------------------------------------------------------------------*
+ |                                                                           |
+ |                       DISTRIBUTED ANSYS RUN COMPLETED                     |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ | Ansys 2019 R2               Build 19.4         UP20190416     WINDOWS x64 |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ | Database Requested(-db)     1 MB    Scratch Memory Requested      1024 MB |
+ | Maximum Database Used       1 MB    Maximum Scratch Memory Used    197 MB |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ |        CP Time      (sec) =         27.859       Time  =  23:52:58        |
+ |        Elapsed Time (sec) =        409.000       Date  =  01/11/2026      |
+ |                                                                           |
+ *---------------------------------------------------------------------------*

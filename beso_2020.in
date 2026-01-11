@@ -124,11 +124,11 @@ nu_void        = nu_design           ! Void Poisson's Ratio
 ! --- Mesh Parameters ---
 /COM, Element size and filter radius must be double checked with FEA model
 esize_ = 20                     ! Element size (mm)
-Rmin  = esize_*2.5              ! Filter radius for sensitivity smoothing
+Rmin  = esize_*1.5              ! Filter radius for sensitivity smoothing
 
 ! --- BESO Parameters ---
 volfrac = 0.25                 ! Target volume fraction (25%)
-ER      = 0.15                 ! Evolution rate (15% per iteration)
+ER      = 0.05                 ! Evolution rate (5% per iteration)
 maxIter = 100                  ! Maximum number of iterations
 convTol = 0.002                ! Convergence tolerance (0.2%)
 conv_window = 5                ! Convergence window (iterations)
@@ -551,19 +551,21 @@ converged = 0       ! Convergence flag (0=no, 1=yes)
     ! ==================================================================
     /POST1
     SET, 1, LAST
-    
+    ! ===== select design domain only =====
+    esel,s,,,DESIGN_DOMAIN
+
     ! ===== COMPLIANCE (ANALYTICAL) =====
     ETABLE, SENE_TAB, SENE
     SSUM
     *GET, totalSENE, SSUM, , ITEM, SENE_TAB
     compliance(iter) = 2*totalSENE
     
-    ALLSEL
+    ! ALLSEL
     *VGET, sensit_C(1), ELEM, 1, ETAB, SENE_TAB
     
     ! ===== P-NORM STRESS AGGREGATION =====
     ETABLE, SEQV_TAB, S, EQV
-    ALLSEL
+    ! ALLSEL
     *VGET, elemStress(1), ELEM, 1, ETAB, SEQV_TAB
     
     ! Find actual maximum for comparison
