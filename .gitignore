@@ -1,0 +1,12 @@
+# ANSYS temporary and output files
+*.err
+*.esav
+*.full
+*.rst
+*.stat
+*.DSP
+*.mntr
+*.page
+*.bat
+*.out.*
+cleanup-*.bat
