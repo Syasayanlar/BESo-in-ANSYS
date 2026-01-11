@@ -124,11 +124,11 @@ nu_void        = nu_design           ! Void Poisson's Ratio
 ! --- Mesh Parameters ---
 /COM, Element size and filter radius must be double checked with FEA model
 esize_ = 20                     ! Element size (mm)
-Rmin  = esize_*1.5              ! Filter radius for sensitivity smoothing
+Rmin  = esize_*2.5              ! Filter radius for sensitivity smoothing
 
 ! --- BESO Parameters ---
-volfrac = 0.50                 ! Target volume fraction (50%)
-ER      = 0.20                 ! Evolution rate (20% per iteration)
+volfrac = 0.25                 ! Target volume fraction (25%)
+ER      = 0.15                 ! Evolution rate (15% per iteration)
 maxIter = 100                  ! Maximum number of iterations
 convTol = 0.002                ! Convergence tolerance (0.2%)
 conv_window = 5                ! Convergence window (iterations)
@@ -702,8 +702,8 @@ converged = 0       ! Convergence flag (0=no, 1=yes)
     /COM, ========================================
     /COM, Iter %iter% Analysis:
     /COM, Compliance = %compliance(iter)%
-    /COM, Max Stress = %maxStress% MPa, P-norm = %stress_pnorm% MPa (Error: %stress_error*100% pct)
-    /COM, Max Displ = %maxDispl% mm, P-norm = %displ_pnorm% mm (Error: %displ_error*100% pct)
+    /COM, Max Stress = %maxStress% MPa, P-norm = %stress_pnorm% MPa (Error: %stress_error% pct)
+    /COM, Max Displ = %maxDispl% mm, P-norm = %displ_pnorm% mm (Error: %displ_error% pct)
     /COM, g_stress = %g_stress*100% pct, g_displ = %g_displ*100% pct
     /COM, ========================================    
 
@@ -975,6 +975,17 @@ converged = 0       ! Convergence flag (0=no, 1=yes)
     volFrac_curr = currentVol / numDesignElem
     volHistory(iter) = volFrac_curr
     
+    ! TODO: Dynamic evolution rate based on iteration
+    ! *IF, iter, LT, 10, THEN
+    !     ER = 0.50
+    ! *ELSEIF, iter, GE, 10, AND, iter, LT, 30, THEN
+    !     ER = 0.30
+    ! *ELSEIF, iter, GE, 30, AND, iter, LT, 50, THEN
+    !     ER = 0.20
+    ! *ELSE
+    !     ER = 0.10
+    ! *ENDIF
+
     *IF, volFrac_curr, GT, volfrac, THEN
         volFrac_tgt = volFrac_curr - ER
         *IF, volFrac_tgt, LT, volfrac, THEN
@@ -1131,8 +1142,8 @@ converged = 0       ! Convergence flag (0=no, 1=yes)
                         /COM, *** CONVERGED at iteration %iter% ***
                         /COM, Final Compliance = %compliance(iter)%
                         /COM, Final Volume Fraction = %volFrac_curr%
-                        /COM, Final P-norm Stress = %stress_pnorm/1E6% MPa
-                        /COM, Final P-norm Displacement = %displ_pnorm*1000% mm
+                        /COM, Final P-norm Stress = %stress_pnorm% MPa
+                        /COM, Final P-norm Displacement = %displ_pnorm% mm
                         /COM, ========================================
                         
                         finalIter = iter
@@ -1148,7 +1159,9 @@ converged = 0       ! Convergence flag (0=no, 1=yes)
     ! 5.9: WRITE PROGRESS
     ! ==================================================================
     /COM, Iter %iter%: C=%compliance(iter)%, Vol=%volFrac_curr%, Change=%change%
-
+    esel,s,mat,,1
+    cm, SOLID_TOPOLOGY_%iter%, ELEM
+    allsel
 *ENDDO
 
 ! ========================================================================

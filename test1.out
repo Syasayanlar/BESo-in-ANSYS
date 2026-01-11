@@ -102,7 +102,7 @@
   INITIAL DIRECTORY = C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
 
  RELEASE= 2019 R2              BUILD= 19.4      UP20190416   VERSION=WINDOWS x64 
- CURRENT JOBNAME=BESO_APPLICATION0  22:23:19  JAN 11, 2026 CP=      0.141
+ CURRENT JOBNAME=BESO_APPLICATION0  23:19:22  JAN 11, 2026 CP=      0.188
 
      1  ! ========================================================================  
      2  ! ANSYS APDL Code for BESO with Dual P-Norm Aggregation 
@@ -211,7 +211,7 @@
    105  /SYS, del *.rst 
    106  /SYS, del *.stat
    107  /SYS, del *.db  
-   108      
+   108  /SYS, del *.lock
    109  ! ========================================================================  
    110  ! SECTION 1: INPUT PARAMETERS   
    111  !  MATERIAL PROPERTIES, MESH SIZE, BESO PARAMETERS  
@@ -230,11 +230,11 @@
    124  ! --- Mesh Parameters ---   
    125  /COM, Element size and filter radius must be double checked with FEA model  
    126  esize_ = 20                     ! Element size (mm) 
-   127  Rmin  = esize_*1.5              ! Filter radius for sensitivity smoothing   
+   127  Rmin  = esize_*2.5              ! Filter radius for sensitivity smoothing   
    128      
    129  ! --- BESO Parameters ---   
-   130  volfrac = 0.50                 ! Target volume fraction (50%)   
-   131  ER      = 0.20                 ! Evolution rate (20% per iteration) 
+   130  volfrac = 0.25                 ! Target volume fraction (25%)   
+   131  ER      = 0.15                 ! Evolution rate (15% per iteration) 
    132  maxIter = 100                  ! Maximum number of iterations   
    133  convTol = 0.002                ! Convergence tolerance (0.2%)   
    134  conv_window = 5                ! Convergence window (iterations)
@@ -1081,228 +1081,241 @@
    975      volFrac_curr = currentVol / numDesignElem   
    976      volHistory(iter) = volFrac_curr 
    977      
-   978      *IF, volFrac_curr, GT, volfrac, THEN
-   979          volFrac_tgt = volFrac_curr - ER 
-   980          *IF, volFrac_tgt, LT, volfrac, THEN 
-   981              volFrac_tgt = volfrac   
-   982          *ENDIF  
-   983      *ELSE   
-   984          volFrac_tgt = volfrac   
-   985      *ENDIF  
-   986      
-   987      g_vol = volFrac_curr - volfrac  
-   988      g_volHistory(iter) = g_vol  
-   989      
-   990      ! Find sensitivity range
-   991      sens_min = 1E30 
-   992      sens_max = -1E30
-   993      *DO, k, 1, numDesignElem
-   994          i = designElemIdx(k)
-   995          *IF, sensit_filt(i), GT, sens_max, THEN 
-   996              sens_max = sensit_filt(i)   
-   997          *ENDIF  
-   998          *IF, sensit_filt(i), LT, sens_min, THEN 
-   999              sens_min = sensit_filt(i)   
-  1000          *ENDIF  
-  1001      *ENDDO  
-  1002      
-  1003      ! Bisection to find threshold   
-  1004      *DO, bisect, 1, 50  
-  1005          threshold = (sens_min + sens_max) / 2   
-  1006      
-  1007          testVol = 0 
-  1008          *DO, k, 1, numDesignElem
-  1009              i = designElemIdx(k)
-  1010              *IF, sensit_filt(i), GE, threshold, THEN
-  1011                  testVol = testVol + 1   
-  1012              *ENDIF  
-  1013          *ENDDO  
-  1014          testVolFrac = testVol / numDesignElem   
-  1015      
-  1016          *IF, testVolFrac, GT, volFrac_tgt, THEN 
-  1017              sens_min = threshold
-  1018          *ELSE   
-  1019              sens_max = threshold
-  1020          *ENDIF  
-  1021      
-  1022          volError = ABS(testVolFrac - volFrac_tgt)   
-  1023          *IF, volError, LT, 0.001, THEN  
-  1024              *EXIT   
-  1025          *ENDIF  
-  1026      *ENDDO  
-  1027      
-  1028      ! Update densities  
-  1029      *DO, k, 1, numDesignElem
-  1030          i = designElemIdx(k)
-  1031          *IF, sensit_filt(i), GE, threshold, THEN
-  1032              xe(i) = 1.0 
-  1033          *ELSE   
-  1034              xe(i) = xmin
-  1035          *ENDIF  
-  1036      *ENDDO  
-  1037      
-  1038      FINISH  
-  1039      
-  1040      ! ==================================================================
-  1041      ! 5.7: UPDATE AUGMENTED LAGRANGIAN PARAMETERS   
-  1042      ! ==================================================================
-  1043      
-  1044      *IF, g_stress, GT, 0, THEN  
-  1045          lambda_stress = lambda_stress + lambda_update * mu_stress * g_stress
-  1046          *IF, lambda_stress, LT, 0, THEN 
-  1047              lambda_stress = 0   
-  1048          *ENDIF  
-  1049      *ENDIF  
+   978      ! TODO: Dynamic evolution rate based on iteration   
+   979      ! *IF, iter, LT, 10, THEN   
+   980      !     ER = 0.50 
+   981      ! *ELSEIF, iter, GE, 10, AND, iter, LT, 30, THEN
+   982      !     ER = 0.30 
+   983      ! *ELSEIF, iter, GE, 30, AND, iter, LT, 50, THEN
+   984      !     ER = 0.20 
+   985      ! *ELSE 
+   986      !     ER = 0.10 
+   987      ! *ENDIF
+   988      
+   989      *IF, volFrac_curr, GT, volfrac, THEN
+   990          volFrac_tgt = volFrac_curr - ER 
+   991          *IF, volFrac_tgt, LT, volfrac, THEN 
+   992              volFrac_tgt = volfrac   
+   993          *ENDIF  
+   994      *ELSE   
+   995          volFrac_tgt = volfrac   
+   996      *ENDIF  
+   997      
+   998      g_vol = volFrac_curr - volfrac  
+   999      g_volHistory(iter) = g_vol  
+  1000      
+  1001      ! Find sensitivity range
+  1002      sens_min = 1E30 
+  1003      sens_max = -1E30
+  1004      *DO, k, 1, numDesignElem
+  1005          i = designElemIdx(k)
+  1006          *IF, sensit_filt(i), GT, sens_max, THEN 
+  1007              sens_max = sensit_filt(i)   
+  1008          *ENDIF  
+  1009          *IF, sensit_filt(i), LT, sens_min, THEN 
+  1010              sens_min = sensit_filt(i)   
+  1011          *ENDIF  
+  1012      *ENDDO  
+  1013      
+  1014      ! Bisection to find threshold   
+  1015      *DO, bisect, 1, 50  
+  1016          threshold = (sens_min + sens_max) / 2   
+  1017      
+  1018          testVol = 0 
+  1019          *DO, k, 1, numDesignElem
+  1020              i = designElemIdx(k)
+  1021              *IF, sensit_filt(i), GE, threshold, THEN
+  1022                  testVol = testVol + 1   
+  1023              *ENDIF  
+  1024          *ENDDO  
+  1025          testVolFrac = testVol / numDesignElem   
+  1026      
+  1027          *IF, testVolFrac, GT, volFrac_tgt, THEN 
+  1028              sens_min = threshold
+  1029          *ELSE   
+  1030              sens_max = threshold
+  1031          *ENDIF  
+  1032      
+  1033          volError = ABS(testVolFrac - volFrac_tgt)   
+  1034          *IF, volError, LT, 0.001, THEN  
+  1035              *EXIT   
+  1036          *ENDIF  
+  1037      *ENDDO  
+  1038      
+  1039      ! Update densities  
+  1040      *DO, k, 1, numDesignElem
+  1041          i = designElemIdx(k)
+  1042          *IF, sensit_filt(i), GE, threshold, THEN
+  1043              xe(i) = 1.0 
+  1044          *ELSE   
+  1045              xe(i) = xmin
+  1046          *ENDIF  
+  1047      *ENDDO  
+  1048      
+  1049      FINISH  
   1050      
-  1051      *IF, g_displ, GT, 0, THEN   
-  1052          lambda_displ = lambda_displ + lambda_update * mu_displ * g_displ
-  1053          *IF, lambda_displ, LT, 0, THEN  
-  1054              lambda_displ = 0
-  1055          *ENDIF  
-  1056      *ENDIF  
-  1057      
-  1058      *IF, g_stress, GT, tol_constraint, THEN 
-  1059          mu_stress = mu_stress * mu_update   
-  1060          *IF, mu_stress, GT, mu_max, THEN
-  1061              mu_stress = mu_max  
-  1062          *ENDIF  
-  1063          /COM, Stress penalty increased: Mu_stress = %mu_stress% 
-  1064      *ENDIF  
-  1065      
-  1066      *IF, g_displ, GT, tol_constraint, THEN  
-  1067          mu_displ = mu_displ * mu_update 
-  1068          *IF, mu_displ, GT, mu_max, THEN 
-  1069              mu_displ = mu_max   
-  1070          *ENDIF  
-  1071          /COM, Displacement penalty increased: Mu_displ = %mu_displ% 
-  1072      *ENDIF  
-  1073      
-  1074      ! LCF parameter updates (COMMENTED OUT) 
-  1075      ! *IF, g_lcf, GT, 0, THEN   
-  1076      !     lambda_lcf = lambda_lcf + lambda_update * mu_lcf * g_lcf  
-  1077      !     *IF, lambda_lcf, LT, 0, THEN  
-  1078      !         lambda_lcf = 0
-  1079      !     *ENDIF
-  1080      ! *ENDIF
-  1081      !   
-  1082      ! *IF, g_lcf, GT, tol_constraint, THEN  
-  1083      !     mu_lcf = mu_lcf * mu_update   
-  1084      !     *IF, mu_lcf, GT, mu_max, THEN 
-  1085      !         mu_lcf = mu_max   
-  1086      !     *ENDIF
-  1087      !     /COM, LCF penalty increased: Mu_lcf = %mu_lcf%
-  1088      ! *ENDIF
-  1089      
-  1090      lambdaStressHistory(iter) = lambda_stress   
-  1091      lambdaDisplHistory(iter) = lambda_displ 
-  1092      muStressHistory(iter) = mu_stress   
-  1093      muDisplHistory(iter) = mu_displ 
-  1094      
-  1095      ! LCF history (COMMENTED OUT)   
-  1096      ! lambdaLCFHistory(iter) = lambda_lcf   
-  1097      ! muLCFHistory(iter) = mu_lcf   
-  1098      
-  1099      ! ==================================================================
-  1100      ! 5.8: CHECK CONVERGENCE
-  1101      ! ==================================================================
-  1102      
-  1103      *IF, iter, GT, conv_window, THEN
-  1104          avg1 = 0
-  1105          avg2 = 0
-  1106          *DO, k, 0, conv_window-1
-  1107              idx1 = iter - k 
-  1108              idx2 = iter - k - conv_window   
-  1109              *IF, idx2, GT, 0, THEN  
-  1110                  avg1 = avg1 + compliance(idx1)  
-  1111                  avg2 = avg2 + compliance(idx2)  
-  1112              *ENDIF  
-  1113          *ENDDO  
-  1114          avg1 = avg1 / conv_window   
-  1115          avg2 = avg2 / conv_window   
-  1116      
-  1117          *IF, avg2, GT, 0, THEN  
-  1118              change = ABS(avg1 - avg2) / avg1
-  1119          *ELSE   
-  1120              change = 1  
-  1121          *ENDIF  
-  1122      
-  1123          *IF, change, LT, convTol, THEN  
-  1124              *IF, volFrac_curr, LE, volfrac + 0.001, THEN
-  1125                  *IF, g_stress, LE, tol_constraint, THEN 
-  1126                      *IF, g_displ, LE, tol_constraint, THEN  
-  1127                          ! LCF convergence check (COMMENTED OUT) 
-  1128                          ! *IF, g_lcf, LE, tol_constraint, THEN  
-  1129                          converged = 1   
-  1130                          /COM, ========================================  
-  1131                          /COM, *** CONVERGED at iteration %iter% *** 
-  1132                          /COM, Final Compliance = %compliance(iter)% 
-  1133                          /COM, Final Volume Fraction = %volFrac_curr%
-  1134                          /COM, Final P-norm Stress = %stress_pnorm/1E6% MPa  
-  1135                          /COM, Final P-norm Displacement = %displ_pnorm*1000% mm 
-  1136                          /COM, ========================================  
-  1137      
-  1138                          finalIter = iter
-  1139                          *EXIT   
-  1140                          ! *ENDIF  ! End LCF check (COMMENTED OUT)   
-  1141                      *ENDIF  
-  1142                  *ENDIF  
-  1143              *ENDIF  
-  1144          *ENDIF  
-  1145      *ENDIF  
-  1146      
-  1147      ! ==================================================================
-  1148      ! 5.9: WRITE PROGRESS   
-  1149      ! ==================================================================
-  1150      /COM, Iter %iter%: C=%compliance(iter)%, Vol=%volFrac_curr%, Change=%change%
-  1151      
-  1152  *ENDDO  
-  1153      
-  1154  ! ========================================================================  
-  1155  ! SECTION 6: POST-PROCESSING
-  1156  ! ========================================================================  
-  1157  /PREP7  
-  1158      
-  1159  ESEL, S, MAT, , 1   
-  1160      
-  1161  /PNUM, ELEM, 0  
-  1162  /NUMBER, 0  
-  1163  /VIEW, 1, 1, 1, 1   
-  1164  /ANG, 1 
-  1165  /REPLOT 
-  1166  EPLOT   
-  1167      
-  1168  CM, SOLID_TOPOLOGY, ELEM
-  1169  ALLSEL  
-  1170      
-  1171  /COM, ========================================  
-  1172  /COM, BESO DUAL P-NORM OPTIMIZATION COMPLETE
-  1173  /COM, ========================================  
-  1174  /COM, P-Norm Stress Parameter: %p_norm_stress%  
-  1175  /COM, P-Norm Displacement Parameter: %p_norm_displ% 
-  1176  /COM, Target Volume Fraction: %volfrac% 
-  1177  /COM, Final Compliance: %compliance(iter)%  
-  1178  /COM, Final Volume Fraction: %volFrac_curr% 
-  1179  /COM, Final Max Stress: %maxStress/1E6% MPa 
-  1180  /COM, Final P-norm Stress: %stress_pnorm/1E6% MPa (Error: %stress_error% pct)   
-  1181  *IF, g_stress, LE, tol_constraint, THEN 
-  1182      /COM, Stress Constraint: SATISFIED  
-  1183  *ELSE   
-  1184      /COM, Stress Constraint: VIOLATED (%g_stress*100% percent)  
-  1185  *ENDIF  
-  1186  /COM, Final Max Displacement: %maxDispl*1000% mm
-  1187  /COM, Final P-norm Displacement: %displ_pnorm*1000% mm (Error: %displ_error% pct)   
-  1188  *IF, g_displ, LE, tol_constraint, THEN  
-  1189      /COM, Displacement Constraint: SATISFIED
-  1190  *ELSE   
-  1191      /COM, Displacement Constraint: VIOLATED (%g_displ*100% percent) 
-  1192  *ENDIF  
-  1193  /COM, ========================================  
+  1051      ! ==================================================================
+  1052      ! 5.7: UPDATE AUGMENTED LAGRANGIAN PARAMETERS   
+  1053      ! ==================================================================
+  1054      
+  1055      *IF, g_stress, GT, 0, THEN  
+  1056          lambda_stress = lambda_stress + lambda_update * mu_stress * g_stress
+  1057          *IF, lambda_stress, LT, 0, THEN 
+  1058              lambda_stress = 0   
+  1059          *ENDIF  
+  1060      *ENDIF  
+  1061      
+  1062      *IF, g_displ, GT, 0, THEN   
+  1063          lambda_displ = lambda_displ + lambda_update * mu_displ * g_displ
+  1064          *IF, lambda_displ, LT, 0, THEN  
+  1065              lambda_displ = 0
+  1066          *ENDIF  
+  1067      *ENDIF  
+  1068      
+  1069      *IF, g_stress, GT, tol_constraint, THEN 
+  1070          mu_stress = mu_stress * mu_update   
+  1071          *IF, mu_stress, GT, mu_max, THEN
+  1072              mu_stress = mu_max  
+  1073          *ENDIF  
+  1074          /COM, Stress penalty increased: Mu_stress = %mu_stress% 
+  1075      *ENDIF  
+  1076      
+  1077      *IF, g_displ, GT, tol_constraint, THEN  
+  1078          mu_displ = mu_displ * mu_update 
+  1079          *IF, mu_displ, GT, mu_max, THEN 
+  1080              mu_displ = mu_max   
+  1081          *ENDIF  
+  1082          /COM, Displacement penalty increased: Mu_displ = %mu_displ% 
+  1083      *ENDIF  
+  1084      
+  1085      ! LCF parameter updates (COMMENTED OUT) 
+  1086      ! *IF, g_lcf, GT, 0, THEN   
+  1087      !     lambda_lcf = lambda_lcf + lambda_update * mu_lcf * g_lcf  
+  1088      !     *IF, lambda_lcf, LT, 0, THEN  
+  1089      !         lambda_lcf = 0
+  1090      !     *ENDIF
+  1091      ! *ENDIF
+  1092      !   
+  1093      ! *IF, g_lcf, GT, tol_constraint, THEN  
+  1094      !     mu_lcf = mu_lcf * mu_update   
+  1095      !     *IF, mu_lcf, GT, mu_max, THEN 
+  1096      !         mu_lcf = mu_max   
+  1097      !     *ENDIF
+  1098      !     /COM, LCF penalty increased: Mu_lcf = %mu_lcf%
+  1099      ! *ENDIF
+  1100      
+  1101      lambdaStressHistory(iter) = lambda_stress   
+  1102      lambdaDisplHistory(iter) = lambda_displ 
+  1103      muStressHistory(iter) = mu_stress   
+  1104      muDisplHistory(iter) = mu_displ 
+  1105      
+  1106      ! LCF history (COMMENTED OUT)   
+  1107      ! lambdaLCFHistory(iter) = lambda_lcf   
+  1108      ! muLCFHistory(iter) = mu_lcf   
+  1109      
+  1110      ! ==================================================================
+  1111      ! 5.8: CHECK CONVERGENCE
+  1112      ! ==================================================================
+  1113      
+  1114      *IF, iter, GT, conv_window, THEN
+  1115          avg1 = 0
+  1116          avg2 = 0
+  1117          *DO, k, 0, conv_window-1
+  1118              idx1 = iter - k 
+  1119              idx2 = iter - k - conv_window   
+  1120              *IF, idx2, GT, 0, THEN  
+  1121                  avg1 = avg1 + compliance(idx1)  
+  1122                  avg2 = avg2 + compliance(idx2)  
+  1123              *ENDIF  
+  1124          *ENDDO  
+  1125          avg1 = avg1 / conv_window   
+  1126          avg2 = avg2 / conv_window   
+  1127      
+  1128          *IF, avg2, GT, 0, THEN  
+  1129              change = ABS(avg1 - avg2) / avg1
+  1130          *ELSE   
+  1131              change = 1  
+  1132          *ENDIF  
+  1133      
+  1134          *IF, change, LT, convTol, THEN  
+  1135              *IF, volFrac_curr, LE, volfrac + 0.001, THEN
+  1136                  *IF, g_stress, LE, tol_constraint, THEN 
+  1137                      *IF, g_displ, LE, tol_constraint, THEN  
+  1138                          ! LCF convergence check (COMMENTED OUT) 
+  1139                          ! *IF, g_lcf, LE, tol_constraint, THEN  
+  1140                          converged = 1   
+  1141                          /COM, ========================================  
+  1142                          /COM, *** CONVERGED at iteration %iter% *** 
+  1143                          /COM, Final Compliance = %compliance(iter)% 
+  1144                          /COM, Final Volume Fraction = %volFrac_curr%
+  1145                          /COM, Final P-norm Stress = %stress_pnorm% MPa  
+  1146                          /COM, Final P-norm Displacement = %displ_pnorm% mm  
+  1147                          /COM, ========================================  
+  1148      
+  1149                          finalIter = iter
+  1150                          *EXIT   
+  1151                          ! *ENDIF  ! End LCF check (COMMENTED OUT)   
+  1152                      *ENDIF  
+  1153                  *ENDIF  
+  1154              *ENDIF  
+  1155          *ENDIF  
+  1156      *ENDIF  
+  1157      
+  1158      ! ==================================================================
+  1159      ! 5.9: WRITE PROGRESS   
+  1160      ! ==================================================================
+  1161      /COM, Iter %iter%: C=%compliance(iter)%, Vol=%volFrac_curr%, Change=%change%
+  1162      esel,s,mat,,1   
+  1163      cm, SOLID_TOPOLOGY_%iter%, ELEM 
+  1164      allsel  
+  1165  *ENDDO  
+  1166      
+  1167  ! ========================================================================  
+  1168  ! SECTION 6: POST-PROCESSING
+  1169  ! ========================================================================  
+  1170  /PREP7  
+  1171      
+  1172  ESEL, S, MAT, , 1   
+  1173      
+  1174  /PNUM, ELEM, 0  
+  1175  /NUMBER, 0  
+  1176  /VIEW, 1, 1, 1, 1   
+  1177  /ANG, 1 
+  1178  /REPLOT 
+  1179  EPLOT   
+  1180      
+  1181  CM, SOLID_TOPOLOGY, ELEM
+  1182  ALLSEL  
+  1183      
+  1184  /COM, ========================================  
+  1185  /COM, BESO DUAL P-NORM OPTIMIZATION COMPLETE
+  1186  /COM, ========================================  
+  1187  /COM, P-Norm Stress Parameter: %p_norm_stress%  
+  1188  /COM, P-Norm Displacement Parameter: %p_norm_displ% 
+  1189  /COM, Target Volume Fraction: %volfrac% 
+  1190  /COM, Final Compliance: %compliance(iter)%  
+  1191  /COM, Final Volume Fraction: %volFrac_curr% 
+  1192  /COM, Final Max Stress: %maxStress% MPa 
+  1193  /COM, Final P-norm Stress: %stress_pnorm% MPa (Error: %stress_error*100% pct)   
+  1194  *IF, g_stress, LE, tol_constraint, THEN 
+  1195      /COM, Stress Constraint: SATISFIED  
+  1196  *ELSE   
+  1197      /COM, Stress Constraint: VIOLATED (%g_stress*100% percent)  
+  1198  *ENDIF  
+  1199  /COM, Final Max Displacement: %maxDispl% mm 
+  1200  /COM, Final P-norm Displacement: %displ_pnorm% mm (Error: %displ_error*100% pct)
+  1201  *IF, g_displ, LE, tol_constraint, THEN  
+  1202      /COM, Displacement Constraint: SATISFIED
+  1203  *ELSE   
+  1204      /COM, Displacement Constraint: VIOLATED (%g_displ*100% percent) 
+  1205  *ENDIF  
+  1206  /COM, ========================================  
 
  RUN SETUP PROCEDURE FROM FILE= C:\Program Files\ANSYS Inc\v194\ANSYS\apdl\start.ans
 
  /INPUT FILE= C:\Program Files\ANSYS Inc\v194\ANSYS\apdl\start.ans  LINE=       0
 
- *** WARNING ***                         CP =       0.328   TIME= 22:23:19
+ *** WARNING ***                         CP =       0.375   TIME= 23:19:22
  The /BATCH command must be the first line of input.  The /BATCH command 
  is ignored.                                                             
 
@@ -1312,7 +1325,7 @@
 
  CURRENT JOBNAME REDEFINED AS beso_2020
 
- *** NOTE ***                            CP =       0.359   TIME= 22:23:19
+ *** NOTE ***                            CP =       0.391   TIME= 23:19:22
  The defined jobname (beso_2020) contains a numeric value (0->9) for the 
  last character.  Therefore, when creating local solution files          
  Distributed ANSYS will append an underscore to the jobname prior to     
@@ -1380,6 +1393,12 @@ The process cannot access the file because it is being used by another process.
 
 Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
+ SYSTEM= 
+  del *.lock
+
+C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\BESO_APPLICATION.lock
+The process cannot access the file because it is being used by another process.
+
  PARAMETER _PI =     3.141592654    
 
  PARAMETER EPS_MACHINE =    0.1000000000E-15
@@ -1397,11 +1416,11 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
  PARAMETER ESIZE_ =     20.00000000    
 
- PARAMETER RMIN =     30.00000000    
+ PARAMETER RMIN =     50.00000000    
 
- PARAMETER VOLFRAC =    0.5000000000    
+ PARAMETER VOLFRAC =    0.2500000000    
 
- PARAMETER ER =    0.2000000000    
+ PARAMETER ER =    0.1500000000    
 
  PARAMETER MAXITER =     100.0000000    
 
@@ -1443,7 +1462,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:20  JAN 11, 2026 CP=      0.375
+ 20120530  VERSION=WINDOWS x64   23:19:23  JAN 11, 2026 CP=      0.391
 
                                                                                
 
@@ -1476,7 +1495,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
 
 
- ***** ROUTINE COMPLETED *****  CP =         0.375
+ ***** ROUTINE COMPLETED *****  CP =         0.391
 
 
 
@@ -1485,7 +1504,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:20  JAN 11, 2026 CP=      0.375
+ 20120530  VERSION=WINDOWS x64   23:19:23  JAN 11, 2026 CP=      0.391
 
                                                                                
 
@@ -1552,14 +1571,14 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  CMBLOCK read of ELEM component DESIGN_DOMAIN  completed
 
 
- ***** ROUTINE COMPLETED *****  CP =         0.938
+ ***** ROUTINE COMPLETED *****  CP =         0.953
 
 
 
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:20  JAN 11, 2026 CP=      0.938
+ 20120530  VERSION=WINDOWS x64   23:19:23  JAN 11, 2026 CP=      0.953
 
                                                                                
 
@@ -1605,7 +1624,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
 
 
- ***** ROUTINE COMPLETED *****  CP =         0.938
+ ***** ROUTINE COMPLETED *****  CP =         0.953
 
 
 
@@ -1614,7 +1633,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:20  JAN 11, 2026 CP=      0.938
+ 20120530  VERSION=WINDOWS x64   23:19:23  JAN 11, 2026 CP=      0.953
 
   Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
 
@@ -1645,14 +1664,14 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
 
 
- ***** ROUTINE COMPLETED *****  CP =         1.859
+ ***** ROUTINE COMPLETED *****  CP =         1.797
 
 
 
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:20  JAN 11, 2026 CP=      1.859
+ 20120530  VERSION=WINDOWS x64   23:19:23  JAN 11, 2026 CP=      1.859
 
   Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
 
@@ -1685,8 +1704,8 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
   Passive Region Elements: 255
   Units are N and mm
   For later cases we can use in and psi units
-  Volume Fraction Target: 0.5
-  Evolution Rate: 0.2 per iteration
+  Volume Fraction Target: 0.25
+  Evolution Rate: 0.15 per iteration
   Maximum Iterations: 100
   Convergence Tolerance: 2.E-03
   P-Norm Stress: 8
@@ -1786,18 +1805,18 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
  PARAMETER NUMNEIGHINCREASE =     100.0000000    
 
- PARAMETER MAXNEIGHBORS =     156.0000000    
+ PARAMETER MAXNEIGHBORS =     360.0000000    
 
- PARAMETER MAXNEIGHBORS =     256.0000000    
+ PARAMETER MAXNEIGHBORS =     460.0000000    
 
  SET PARAMETER DIMENSIONS ON  NEIGHCOUNT
   TYPE=ARRA  DIMENSIONS=    15625        1        1
 
  SET PARAMETER DIMENSIONS ON  NEIGHLIST
-  TYPE=ARRA  DIMENSIONS=    15625      256        1
+  TYPE=ARRA  DIMENSIONS=    15625      460        1
 
  SET PARAMETER DIMENSIONS ON  NEIGHWEIGHT
-  TYPE=ARRA  DIMENSIONS=    15625      256        1
+  TYPE=ARRA  DIMENSIONS=    15625      460        1
 
  SET PARAMETER DIMENSIONS ON  ISDESIGN TYPE=ARRA  DIMENSIONS= 15625     1     1
 
@@ -1835,34 +1854,34 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
  SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
 
- SELECT       FOR ITEM=LOC  COMPONENT=X     BETWEEN  310.00     AND   370.00    
-   KABS=  0.  TOLERANCE= 0.600000E-06
+ SELECT       FOR ITEM=LOC  COMPONENT=X     BETWEEN  290.00     AND   390.00    
+   KABS=  0.  TOLERANCE= 0.100000E-05
 
        1352  NODES (OF      17576  DEFINED) SELECTED BY  NSEL  COMMAND.
 
- RESELECT     FOR ITEM=LOC  COMPONENT=Y     BETWEEN  310.00     AND   370.00    
-   KABS=  0.  TOLERANCE= 0.600000E-06
+ RESELECT     FOR ITEM=LOC  COMPONENT=Y     BETWEEN  290.00     AND   390.00    
+   KABS=  0.  TOLERANCE= 0.100000E-05
 
         104  NODES (OF      17576  DEFINED) SELECTED BY  NSEL  COMMAND.
 
- RESELECT     FOR ITEM=LOC  COMPONENT=Z     BETWEEN  460.00     AND   520.00    
-   KABS=  0.  TOLERANCE= 0.600000E-06
+ RESELECT     FOR ITEM=LOC  COMPONENT=Z     BETWEEN  440.00     AND   540.00    
+   KABS=  0.  TOLERANCE= 0.100000E-05
 
-         12  NODES (OF      17576  DEFINED) SELECTED BY  NSEL  COMMAND.
+         16  NODES (OF      17576  DEFINED) SELECTED BY  NSEL  COMMAND.
 
  SELECT      ONLY ELEMENTS COMPLETELY CONTAINED WITHIN NODE SET.
 
-          2 ELEMENTS (OF      15625  DEFINED) SELECTED FROM
-       12 SELECTED NODES BY  ESLN COMMAND.
+          3 ELEMENTS (OF      15625  DEFINED) SELECTED FROM
+       16 SELECTED NODES BY  ESLN COMMAND.
 
- *GET  NUMNEIGH  FROM  ELEM  ITEM=COUN           VALUE=  2.00000000    
+ *GET  NUMNEIGH  FROM  ELEM  ITEM=COUN           VALUE=  3.00000000    
 
- *IF  numNeigh                          ( =   2.00000     )  GT  
+ *IF  numNeigh                          ( =   3.00000     )  GT  
       0                                 ( =   0.00000     )  THEN    
 
  *GET  J         FROM  ELEM  ITEM=NUM  MIN       VALUE=  1.00000000    
 
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  2.0000     BY  1.0000    
+ *DO LOOP ON PARAMETER= K FROM  1.0000     TO  3.0000     BY  1.0000    
 
  PARAMETER DX =     0.000000000    
 
@@ -1873,7 +1892,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  PARAMETER DIST =     0.000000000    
 
  *IF  dist                              ( =   0.00000     )  LT  
-      Rmin                              ( =   30.0000     )  THEN    
+      Rmin                              ( =   50.0000     )  THEN    
 
  PARAMETER NEIGHCOUNT(I) =     1.000000000    
 
@@ -1881,17 +1900,17 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
  PARAMETER NEIGHLIST(I,NC) =     1.000000000    
 
- PARAMETER NEIGHWEIGHT(I,NC) =     30.00000000    
+ PARAMETER NEIGHWEIGHT(I,NC) =     50.00000000    
 
  *IF  nc                                ( =   1.00000     )  GE  
-      maxNeighbors                      ( =   256.000     )  THEN    
+      maxNeighbors                      ( =   460.000     )  THEN    
 
  *ENDIF
 
  *ENDIF
 
  *IF  k                                 ( =   1.00000     )  LT  
-      numNeigh                          ( =   2.00000     )  THEN    
+      numNeigh                          ( =   3.00000     )  THEN    
 
  *GET  J         FROM  ELEM         1  ITEM=NXTH           VALUE=  2.00000000    
 
@@ -2006,7 +2025,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  PARAMETER CURRENTVOL =     15370.00000    
 
 
- ***** ROUTINE COMPLETED *****  CP =       141.344
+ ***** ROUTINE COMPLETED *****  CP =       162.906
 
 
   ========================================================================
@@ -2030,7 +2049,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:32  JAN 11, 2026 CP=    141.344
+ 20120530  VERSION=WINDOWS x64   23:19:37  JAN 11, 2026 CP=    162.906
 
   Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
 
@@ -2069,7 +2088,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
 
 
- ***** ROUTINE COMPLETED *****  CP =       144.016
+ ***** ROUTINE COMPLETED *****  CP =       165.625
 
 
 
@@ -2087,7 +2106,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
  USE A MAXIMUM OF   100 EQUILIBRIUM ITERATIONS EACH SUBSTEP
 
- *** NOTE ***                            CP =     144.047   TIME= 22:23:33
+ *** NOTE ***                            CP =     165.656   TIME= 23:19:37
  The automatic domain decomposition logic has selected the MESH domain   
  decomposition method with 12 processes per solution.                    
 
@@ -2104,7 +2123,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:33  JAN 11, 2026 CP=    144.047
+ 20120530  VERSION=WINDOWS x64   23:19:37  JAN 11, 2026 CP=    165.781
 
   Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
 
@@ -2117,11 +2136,11 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
    ANALYSIS TYPE . . . . . . . . . . . . . . . . .STATIC (STEADY-STATE)
    GLOBALLY ASSEMBLED MATRIX . . . . . . . . . . .SYMMETRIC  
 
- *** NOTE ***                            CP =     144.047   TIME= 22:23:33
+ *** NOTE ***                            CP =     165.781   TIME= 23:19:37
  Present time 0 is less than or equal to the previous time.  Time will   
  default to 1.                                                           
 
- *** NOTE ***                            CP =     144.047   TIME= 22:23:33
+ *** NOTE ***                            CP =     165.781   TIME= 23:19:37
  The conditions for direct assembly have been met.  No .emat or .erot    
  files will be produced.                                                 
 
@@ -2156,8 +2175,8 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
    *** ELEMENT MATRIX FORMULATION TIMES
      TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
 
-        1     15625  SOLID185      1.625   0.000104
- Time at end of element matrix formulation CP = 146.359375.              
+        1     15625  SOLID185      1.656   0.000106
+ Time at end of element matrix formulation CP = 168.421875.              
 
  DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
   Number of equations =       52680,    Maximum wavefront =     63
@@ -2170,7 +2189,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
   Total memory required for in-core solution     =    499.246 MB
   Total memory required for out-of-core solution =    211.881 MB
 
- *** NOTE ***                            CP =     147.156   TIME= 22:23:33
+ *** NOTE ***                            CP =     169.234   TIME= 23:19:38
  The Distributed Sparse Matrix Solver is currently running in the        
  in-core memory mode.  This memory mode uses the most amount of memory   
  in order to avoid using the hard drive as much as possible, which most  
@@ -2185,12 +2204,12 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
    *** ELEMENT RESULT CALCULATION TIMES
      TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
 
-        1     15625  SOLID185      1.234   0.000079
+        1     15625  SOLID185      1.422   0.000091
 
    *** NODAL LOAD CALCULATION TIMES
      TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
 
-        1     15625  SOLID185      0.062   0.000004
+        1     15625  SOLID185      0.156   0.000010
  *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
  *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
 
@@ -2203,14 +2222,14 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  FINISH SOLUTION PROCESSING
 
 
- ***** ROUTINE COMPLETED *****  CP =       148.000
+ ***** ROUTINE COMPLETED *****  CP =       170.094
 
 
 
  *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
  DISTRIBUTED ANSYS Mechanical Enterprise                       
 
- 20120530  VERSION=WINDOWS x64   22:23:34  JAN 11, 2026 CP=    148.000
+ 20120530  VERSION=WINDOWS x64   23:19:39  JAN 11, 2026 CP=    170.094
 
   Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
 
@@ -2218,7 +2237,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
           ***** ANSYS RESULTS INTERPRETATION (POST1) *****
 
- *** NOTE ***                            CP =     148.000   TIME= 22:23:34
+ *** NOTE ***                            CP =     170.094   TIME= 23:19:39
  Reading results into the database (SET command) will update the current 
  displacement and force boundary conditions in the database with the     
  values from the results file for that load set.  Note that any          
@@ -2277,7 +2296,7 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
 
  *ENDDO  INDEX= I                               
 
- *** WARNING ***                         CP =     150.688   TIME= 22:23:34
+ *** WARNING ***                         CP =     172.656   TIME= 23:19:39
  * no longer valid as comment character - please use !                   
   *SET,stress_pnorm, sigma_ref * (sum_pnorm_stress**(1/p_norm_str        
   This warning only issued once.                                         
@@ -2519,2606 +2538,3 @@ Could Not Find C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\*.db
  SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
 
  *ENDDO  INDEX= I                               
-
- SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
-
- *IF  iter                              ( =   1.00000     )  GT  
-      1                                 ( =   1.00000     )  THEN    
-
- *ENDIF
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =       241.562
-
-
-
- PARAMETER SENS_C_MIN =    0.1000000000E+31
-
- PARAMETER SENS_C_MAX =   -0.1000000000E+31
-
- *DO LOOP ON PARAMETER= I FROM  1.0000     TO  15625.     BY  1.0000    
-
- *IF  sensit_C(i)                       ( =   118.860     )  LT  
-      sens_C_min                        ( =  0.100000E+31 )  THEN    
-
- PARAMETER SENS_C_MIN =     118.8598938    
-
- *ENDIF
-
- *IF  sensit_C(i)                       ( =   118.860     )  GT  
-      sens_C_max                        ( = -0.100000E+31 )  THEN    
-
- PARAMETER SENS_C_MAX =     118.8598938    
-
- *ENDIF
-
- *ENDDO  INDEX= I                               
-
- *IF  g_stress                          ( =   0.00000     )  GT  
-      0                                 ( =   0.00000     )  THEN    
-
- *ELSE
-
- PARAMETER LAMBDA_EFF_STRESS =     0.000000000    
-
- *ENDIF
-
- *IF  g_displ                           ( =   0.00000     )  GT  
-      0                                 ( =   0.00000     )  THEN    
-
- *ELSE
-
- PARAMETER LAMBDA_EFF_DISPL =     0.000000000    
-
- *ENDIF
-
- *DO LOOP ON PARAMETER= I FROM  1.0000     TO  15625.     BY  1.0000    
-
- PARAMETER SENS_C_NORM =    0.2964893561E-02
-
- PARAMETER SENSIT_COMBINED(I) =    0.2964893561E-02
-
- PARAMETER WEIGHT_STRESS =     0.000000000    
-
- PARAMETER SENSIT_COMBINED(I) =    0.2964893561E-02
-
- PARAMETER WEIGHT_DISPL =     0.000000000    
-
- PARAMETER SENSIT_COMBINED(I) =    0.2964893561E-02
-
- *ENDDO  INDEX= I                               
-
- *DO LOOP ON PARAMETER= I FROM  1.0000     TO  15625.     BY  1.0000    
-
- PARAMETER SENSIT_OLD(I) =    0.2964893561E-02
-
- *ENDDO  INDEX= I                               
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:23:45  JAN 11, 2026 CP=    244.312
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
- *DO LOOP ON PARAMETER= I FROM  1.0000     TO  15625.     BY  1.0000    
-
- PARAMETER SUMW =     0.000000000    
-
- PARAMETER SUMWS =     0.000000000    
-
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  2.0000     BY  1.0000    
-
- PARAMETER J =     1.000000000    
-
- PARAMETER WEIGHT =     30.00000000    
-
- PARAMETER SUMW =     30.00000000    
-
- PARAMETER SUMWS =    0.8894680683E-01
-
- *ENDDO  INDEX= K                               
-
- *IF  sumW                              ( =   40.0000     )  GT  
-      0                                 ( =   0.00000     )  THEN    
-
- PARAMETER SENSIT_FILT(I) =    0.2850863662E-02
-
- *ELSE
-
- *ENDIF
-
- *ENDDO  INDEX= I                               
-
- *DO LOOP ON PARAMETER= I FROM  1.0000     TO  15625.     BY  1.0000    
-
- *IF  isDesign(i)                       ( =   1.00000     )  EQ  
-      1                                 ( =   1.00000     )  THEN    
-
- PARAMETER SOLIDNEIGHBORS =     0.000000000    
-
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  2.0000     BY  1.0000    
-
- PARAMETER J =     1.000000000    
-
- *IF  xe(j)                             ( =   1.00000     )  GT  
-      0.5                               ( =  0.500000     )  THEN    
-
- PARAMETER SOLIDNEIGHBORS =     1.000000000    
-
- *ENDIF
-
- *ENDDO  INDEX= K                               
-
- PARAMETER CONNECTIVITYRATIO =     1.000000000    
-
- *IF  xe(i)                             ( =   1.00000     )  GT  
-      0.5                               ( =  0.500000     )  THEN    
-
- *IF  connectivityRatio                 ( =   1.00000     )  LT  
-      0.25                              ( =  0.250000     )  THEN    
-
- *ELSEIF  connectivityRatio                 ( =   1.00000     )  LT  
-          0.4                               ( =  0.400000     )  THEN    
-
- *ENDIF
-
- *ELSE
-
- *ENDIF
-
- *ENDIF
-
- *ENDDO  INDEX= I                               
-
-
- ***** ROUTINE COMPLETED *****  CP =       248.031
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:23:46  JAN 11, 2026 CP=    248.031
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
- PARAMETER CURRENTVOL =     0.000000000    
-
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  15370.     BY  1.0000    
-
- PARAMETER I =     1.000000000    
-
- PARAMETER CURRENTVOL =     1.000000000    
-
- *ENDDO  INDEX= K                               
-
- PARAMETER VOLFRAC_CURR =     1.000000000    
-
- PARAMETER VOLHISTORY(ITER) =     1.000000000    
-
- *IF  volFrac_curr                      ( =   1.00000     )  GT  
-      volfrac                           ( =  0.500000     )  THEN    
-
- PARAMETER VOLFRAC_TGT =    0.8000000000    
-
- *IF  volFrac_tgt                       ( =  0.800000     )  LT  
-      volfrac                           ( =  0.500000     )  THEN    
-
- *ENDIF
-
- *ELSE
-
- *ENDIF
-
- PARAMETER G_VOL =    0.5000000000    
-
- PARAMETER G_VOLHISTORY(ITER) =    0.5000000000    
-
- PARAMETER SENS_MIN =    0.1000000000E+31
-
- PARAMETER SENS_MAX =   -0.1000000000E+31
-
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  15370.     BY  1.0000    
-
- PARAMETER I =     1.000000000    
-
- *IF  sensit_filt(i)                    ( =  0.285086E-02 )  GT  
-      sens_max                          ( = -0.100000E+31 )  THEN    
-
- PARAMETER SENS_MAX =    0.2850863662E-02
-
- *ENDIF
-
- *IF  sensit_filt(i)                    ( =  0.285086E-02 )  LT  
-      sens_min                          ( =  0.100000E+31 )  THEN    
-
- PARAMETER SENS_MIN =    0.2850863662E-02
-
- *ENDIF
-
- *ENDDO  INDEX= K                               
-
- *DO LOOP ON PARAMETER= BISECT FROM  1.0000     TO  50.000     BY  1.0000    
-
- PARAMETER THRESHOLD =    0.1223731961    
-
- PARAMETER TESTVOL =     0.000000000    
-
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  15370.     BY  1.0000    
-
- PARAMETER I =     1.000000000    
-
- *IF  sensit_filt(i)                    ( =  0.285086E-02 )  GE  
-      threshold                         ( =  0.122373     )  THEN    
-
- *ENDIF
-
- *ENDDO  INDEX= K                               
-
- PARAMETER TESTVOLFRAC =    0.1626545218E-02
-
- *IF  testVolFrac                       ( =  0.162655E-02 )  GT  
-      volFrac_tgt                       ( =  0.800000     )  THEN    
-
- *ELSE
-
- PARAMETER SENS_MAX =    0.1223731961    
-
- *ENDIF
-
- PARAMETER VOLERROR =    0.7983734548    
-
- *IF  volError                          ( =  0.798373     )  LT  
-      0.001                             ( =  0.100000E-02 )  THEN    
-
- *ENDIF
-
- *ENDDO  INDEX= BISECT                          
-
- *DO LOOP ON PARAMETER= K FROM  1.0000     TO  15370.     BY  1.0000    
-
- PARAMETER I =     1.000000000    
-
- *IF  sensit_filt(i)                    ( =  0.285086E-02 )  GE  
-      threshold                         ( =  0.631241E-03 )  THEN    
-
- PARAMETER XE(I) =     1.000000000    
-
- *ELSE
-
- *ENDIF
-
- *ENDDO  INDEX= K                               
-
-
- ***** ROUTINE COMPLETED *****  CP =       252.844
-
-
-
- *IF  g_stress                          ( =   0.00000     )  GT  
-      0                                 ( =   0.00000     )  THEN    
-
- *ENDIF
-
- *IF  g_displ                           ( =   0.00000     )  GT  
-      0                                 ( =   0.00000     )  THEN    
-
- *ENDIF
-
- *IF  g_stress                          ( =   0.00000     )  GT  
-      tol_constraint                    ( =  0.500000E-01 )  THEN    
-
- *ENDIF
-
- *IF  g_displ                           ( =   0.00000     )  GT  
-      tol_constraint                    ( =  0.500000E-01 )  THEN    
-
- *ENDIF
-
- PARAMETER LAMBDASTRESSHISTORY(ITER) =     0.000000000    
-
- PARAMETER LAMBDADISPLHISTORY(ITER) =     0.000000000    
-
- PARAMETER MUSTRESSHISTORY(ITER) =    0.1000000000E-07
-
- PARAMETER MUDISPLHISTORY(ITER) =    0.1000000000E-07
-
- *IF  iter                              ( =   1.00000     )  GT  
-      conv_window                       ( =   5.00000     )  THEN    
-
- *ENDIF
-  Iter 1: C=7180712.68, Vol=1, Change=0
-
- *ENDDO  INDEX= ITER                            
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:23:49  JAN 11, 2026 CP=    252.844
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       255.406
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:23:49  JAN 11, 2026 CP=    255.484
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 13768.                             
-
- *** WARNING ***                         CP =     257.750   TIME= 22:23:49
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.734   0.000111
- Time at end of element matrix formulation CP = 257.75.                  
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =     258.469   TIME= 22:23:50
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.078   0.000069
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.125   0.000008
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =       259.219
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:23:50  JAN 11, 2026 CP=    259.219
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.372045E+07
- SEQV_TAB   525121.    
-  ========================================
-  Iter 2 Analysis:
-  Compliance = 7440898.79
-  Max Stress = 637.627284 MPa, P-norm = 420 MPa (Error: -0.341307986 pct)
-  Max Displ = 0.771402543 mm, P-norm = 50 mm (Error: 63.8170018 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =       369.438
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:03  JAN 11, 2026 CP=    371.625
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       376.906
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:06  JAN 11, 2026 CP=    376.906
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       383.750
-
-
-  Iter 2: C=7440898.79, Vol=0.800849967, Change=0
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:11  JAN 11, 2026 CP=    383.750
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       386.469
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:11  JAN 11, 2026 CP=    386.656
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =     388.812   TIME= 22:24:11
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.672   0.000107
- Time at end of element matrix formulation CP = 388.8125.                
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =     389.547   TIME= 22:24:11
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.188   0.000076
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.141   0.000009
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =       390.312
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:12  JAN 11, 2026 CP=    390.328
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.408502E+07
- SEQV_TAB   513043.    
-  ========================================
-  Iter 3 Analysis:
-  Compliance = 8170042.02
-  Max Stress = 687.315512 MPa, P-norm = 420 MPa (Error: -0.38892693 pct)
-  Max Displ = 0.844153584 mm, P-norm = 50 mm (Error: 58.2309278 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =       501.500
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:24  JAN 11, 2026 CP=    503.047
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       508.484
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:27  JAN 11, 2026 CP=    508.484
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       513.750
-
-
-  Iter 3: C=8170042.02, Vol=0.601439948, Change=0
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:31  JAN 11, 2026 CP=    513.750
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       516.312
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:31  JAN 11, 2026 CP=    516.500
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =     518.516   TIME= 22:24:31
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.609   0.000103
- Time at end of element matrix formulation CP = 518.515625.              
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =     519.141   TIME= 22:24:31
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.078   0.000069
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.156   0.000010
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =       519.906
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:32  JAN 11, 2026 CP=    519.906
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.431141E+07
- SEQV_TAB   497760.    
-  ========================================
-  Iter 4 Analysis:
-  Compliance = 8622826.99
-  Max Stress = 694.813228 MPa, P-norm = 420 MPa (Error: -0.395521007 pct)
-  Max Displ = 0.889051822 mm, P-norm = 50 mm (Error: 55.2396913 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =       631.016
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:45  JAN 11, 2026 CP=    632.500
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       637.672
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:48  JAN 11, 2026 CP=    637.672
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       643.141
-
-
-  Iter 4: C=8622826.99, Vol=0.500824984, Change=0
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:51  JAN 11, 2026 CP=    643.188
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       645.719
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:51  JAN 11, 2026 CP=    645.750
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =     647.922   TIME= 22:24:52
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.531   0.000098
- Time at end of element matrix formulation CP = 647.921875.              
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =     648.797   TIME= 22:24:52
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.031   0.000066
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.109   0.000007
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =       649.531
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:24:53  JAN 11, 2026 CP=    649.547
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429959E+07
- SEQV_TAB   493294.    
-  ========================================
-  Iter 5 Analysis:
-  Compliance = 8599172.28
-  Max Stress = 693.270923 MPa, P-norm = 420 MPa (Error: -0.394176236 pct)
-  Max Displ = 0.886706584 mm, P-norm = 50 mm (Error: 55.3884388 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =       758.812
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:04  JAN 11, 2026 CP=    760.359
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       765.328
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:07  JAN 11, 2026 CP=    765.328
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       770.625
-
-
-  Iter 5: C=8599172.28, Vol=0.501344958, Change=0
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:10  JAN 11, 2026 CP=    770.625
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       773.344
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:11  JAN 11, 2026 CP=    773.359
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =     775.547   TIME= 22:25:11
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.453   0.000093
- Time at end of element matrix formulation CP = 775.5625.                
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =     776.266   TIME= 22:25:11
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.016   0.000065
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.141   0.000009
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =       777.016
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:12  JAN 11, 2026 CP=    777.031
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.430028E+07
- SEQV_TAB   493144.    
-  ========================================
-  Iter 6 Analysis:
-  Compliance = 8600563.21
-  Max Stress = 692.891681 MPa, P-norm = 420 MPa (Error: -0.393844649 pct)
-  Max Displ = 0.886831177 mm, P-norm = 50 mm (Error: 55.3805167 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =       890.750
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:25  JAN 11, 2026 CP=    892.250
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       897.500
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:28  JAN 11, 2026 CP=    897.500
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       902.594
-
-
-  Iter 6: C=8600563.21, Vol=0.50030501, Change=0.165088087
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:31  JAN 11, 2026 CP=    902.594
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =       905.281
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:31  JAN 11, 2026 CP=    905.297
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =     907.484   TIME= 22:25:31
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.500   0.000096
- Time at end of element matrix formulation CP = 907.484375.              
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =     908.172   TIME= 22:25:32
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.031   0.000066
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.125   0.000008
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =       908.875
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:32  JAN 11, 2026 CP=    908.891
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493050.    
-  ========================================
-  Iter 7 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1023.453
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:45  JAN 11, 2026 CP=   1025.031
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1029.859
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:48  JAN 11, 2026 CP=   1029.859
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1035.078
-
-
-  Iter 7: C=8595796.3, Vol=0.500824984, Change=0.149726344
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:51  JAN 11, 2026 CP=   1035.078
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1037.688
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:51  JAN 11, 2026 CP=   1037.859
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =    1039.859   TIME= 22:25:52
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.656   0.000106
- Time at end of element matrix formulation CP = 1039.85938.              
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =    1040.578   TIME= 22:25:52
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.938   0.000060
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.125   0.000008
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =      1041.312
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:25:53  JAN 11, 2026 CP=   1041.312
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493095.    
-  ========================================
-  Iter 8 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1155.500
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:06  JAN 11, 2026 CP=   1156.984
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1162.188
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:09  JAN 11, 2026 CP=   1162.188
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1167.484
-
-
-  Iter 8: C=8595796.3, Vol=0.500824984, Change=0.116333909
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:12  JAN 11, 2026 CP=   1167.484
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1170.094
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:12  JAN 11, 2026 CP=   1170.266
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =    1172.438   TIME= 22:26:12
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.609   0.000103
- Time at end of element matrix formulation CP = 1172.4375.               
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =    1173.016   TIME= 22:26:13
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.203   0.000077
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.125   0.000008
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =      1173.766
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:13  JAN 11, 2026 CP=   1173.781
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493095.    
-  ========================================
-  Iter 9 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1284.312
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:25  JAN 11, 2026 CP=   1285.703
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1290.594
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:28  JAN 11, 2026 CP=   1290.594
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1295.594
-
-
-  Iter 9: C=8595796.3, Vol=0.500824984, Change=8.646841239E-02
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:31  JAN 11, 2026 CP=   1295.609
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1298.047
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:31  JAN 11, 2026 CP=   1298.219
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =    1300.266   TIME= 22:26:31
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.703   0.000109
- Time at end of element matrix formulation CP = 1300.26562.              
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =    1301.000   TIME= 22:26:32
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.125   0.000072
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.062   0.000004
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =      1301.750
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:32  JAN 11, 2026 CP=   1301.750
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493095.    
-  ========================================
-  Iter 10 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1416.125
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:45  JAN 11, 2026 CP=   1417.828
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1422.969
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:48  JAN 11, 2026 CP=   1422.984
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1427.797
-
-
-  Iter 10: C=8595796.3, Vol=0.500824984, Change=6.909810702E-02
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:51  JAN 11, 2026 CP=   1427.797
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1430.453
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:52  JAN 11, 2026 CP=   1430.609
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =    1432.812   TIME= 22:26:52
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.875   0.000120
- Time at end of element matrix formulation CP = 1432.8125.               
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =    1433.406   TIME= 22:26:52
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.078   0.000069
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.109   0.000007
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =      1434.141
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:26:53  JAN 11, 2026 CP=   1434.141
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493095.    
-  ========================================
-  Iter 11 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1539.547
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:04  JAN 11, 2026 CP=   1541.000
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1546.078
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:07  JAN 11, 2026 CP=   1546.125
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1551.234
-
-
-  Iter 11: C=8595796.3, Vol=0.500824984, Change=3.595893041E-02
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:10  JAN 11, 2026 CP=   1551.234
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1553.906
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:10  JAN 11, 2026 CP=   1553.938
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =    1556.062   TIME= 22:27:11
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.703   0.000109
- Time at end of element matrix formulation CP = 1556.0625.               
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =    1556.844   TIME= 22:27:11
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.062   0.000068
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.094   0.000006
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =      1557.578
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:12  JAN 11, 2026 CP=   1557.578
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493095.    
-  ========================================
-  Iter 12 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1662.891
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:24  JAN 11, 2026 CP=   1664.281
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1669.500
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:27  JAN 11, 2026 CP=   1669.500
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1674.719
-
-
-  Iter 12: C=8595796.3, Vol=0.500824984, Change=9.087714078E-03
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:30  JAN 11, 2026 CP=   1674.719
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1677.406
-
-
-
- *****  ANSYS SOLUTION ROUTINE  *****
-
- *****  ANSYS SOLVE    COMMAND  *****
-
- *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
-                ---GIVE SUGGESTIONS ONLY---
-
- ELEMENT TYPE    1 IS SOLID185. IT IS ASSOCIATED WITH LINEAR MATERIALS ONLY
- AND POISSON'S RATIO IS NOT GREATER THAN 0.49. KEYOPT(2)=3 IS SUGGESTED.
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:30  JAN 11, 2026 CP=   1677.438
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-  
-  
-     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
-  
-  ...Number of elements: 15625
-  ...Number of nodes:    17576
-  ...Decompose to 12 CPU domains
-  ...Element load balance ratio =     1.001
-
-
- SOLUTION MONITORING INFO IS WRITTEN TO FILE= beso_2020.mntr                                                                                                                                                                                                                                                      
-
-
- Range of element maximum matrix coefficients in global coordinates
- Maximum = 2413512.41 at element 13805.                                  
- Minimum = 2.413512414E-03 at element 12668.                             
-
- *** WARNING ***                         CP =    1679.594   TIME= 22:27:31
- Coefficient ratio exceeds 1.0e8 - Check results.                        
-
-   *** ELEMENT MATRIX FORMULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.391   0.000089
- Time at end of element matrix formulation CP = 1679.59375.              
-
- DISTRIBUTED SPARSE MATRIX DIRECT SOLVER.
-  Number of equations =       52680,    Maximum wavefront =     63
-
-  Local memory allocated for solver              =     56.273 MB
-  Local memory required for in-core solution     =     53.773 MB
-  Local memory required for out-of-core solution =     23.006 MB
-
-  Total memory allocated for solver              =    522.235 MB
-  Total memory required for in-core solution     =    499.246 MB
-  Total memory required for out-of-core solution =    211.881 MB
-
- *** NOTE ***                            CP =    1680.484   TIME= 22:27:31
- The Distributed Sparse Matrix Solver is currently running in the        
- in-core memory mode.  This memory mode uses the most amount of memory   
- in order to avoid using the hard drive as much as possible, which most  
- often results in the fastest solution time.  This mode is recommended   
- if enough physical memory is present to accommodate all of the solver   
- data.                                                                   
- Distributed sparse solver maximum pivot= 19308099.3 at node 16177 UZ.   
- Distributed sparse solver minimum pivot= 1.155155483E-03 at node 51 UY. 
- Distributed sparse solver minimum pivot in absolute value=              
- 1.155155483E-03 at node 51 UY.                                          
-
-   *** ELEMENT RESULT CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      1.141   0.000073
-
-   *** NODAL LOAD CALCULATION TIMES
-     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
-
-        1     15625  SOLID185      0.094   0.000006
- *** LOAD STEP     1   SUBSTEP     1  COMPLETED.    CUM ITER =      1
- *** TIME =   1.00000         TIME INC =   1.00000      NEW TRIANG MATRIX
-
-
- *** ANSYS BINARY FILE STATISTICS
-  BUFFER SIZE USED= 16384
-        1.938 MB WRITTEN ON ASSEMBLED MATRIX FILE: beso_2020_0.full
-        1.688 MB WRITTEN ON RESULTS FILE: beso_2020_0.rst
-
- FINISH SOLUTION PROCESSING
-
-
- ***** ROUTINE COMPLETED *****  CP =      1681.203
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:32  JAN 11, 2026 CP=   1681.219
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
-
- SUM ALL THE ACTIVE ENTRIES IN THE ELEMENT TABLE 
-
- TABLE LABEL     TOTAL
- SENE_TAB  0.429790E+07
- SEQV_TAB   493095.    
-  ========================================
-  Iter 13 Analysis:
-  Compliance = 8595796.3
-  Max Stress = 692.699916 MPa, P-norm = 420 MPa (Error: -0.393676842 pct)
-  Max Displ = 0.886352084 mm, P-norm = 50 mm (Error: 55.4109917 pct)
-  g_stress = 0 pct, g_displ = 0 pct
-  ========================================
-
- EXIT THE ANSYS POST1 DATABASE PROCESSOR
-
-
- ***** ROUTINE COMPLETED *****  CP =      1788.391
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:43  JAN 11, 2026 CP=   1789.719
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1794.562
-
-
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:46  JAN 11, 2026 CP=   1794.562
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
-
- ***** ROUTINE COMPLETED *****  CP =      1799.000
-
-
-  ========================================
-  *** CONVERGED at iteration 13 ***
-  Final Compliance = 8595796.3
-  Final Volume Fraction = 0.500824984
-  Final P-norm Stress = 4.2E-04 MPa
-  Final P-norm Displacement = 50000 mm
-  ========================================
-
- *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE 2019 R2          19.4     ***
- DISTRIBUTED ANSYS Mechanical Enterprise                       
-
- 20120530  VERSION=WINDOWS x64   22:27:48  JAN 11, 2026 CP=   1799.016
-
-  Initial Mesh -- BESO Topology Optimization with Augmented Lagrange (N.mm)    
-
-
-
-          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
-
- SELECT       FOR ITEM=MAT  COMPONENT=    
-  IN RANGE         1 TO          1 STEP          1
-
-       7945  ELEMENTS (OF      15625  DEFINED) SELECTED BY  ESEL  COMMAND.
-
- ELEM NUMBERING KEY =  0
-
- NUMBER KEY SET TO  0  -1=NONE  0=BOTH  1=COLOR  2=NUMBER
-
- view point for window  1    1.0000      1.0000      1.0000    
-
- ROTATION ANGLE FOR WINDOW 1 IS     0.00 ABOUT AXIS ZS
-
- DEFINITION OF COMPONENT = SOLID_TOPOLOGY  ENTITY=ELEM
-
- SELECT ALL ENTITIES OF TYPE= ALL  AND BELOW
-  ========================================
-  BESO DUAL P-NORM OPTIMIZATION COMPLETE
-  ========================================
-  P-Norm Stress Parameter: 8
-  P-Norm Displacement Parameter: 6
-  Target Volume Fraction: 0.5
-  Final Compliance: 8595796.3
-  Final Volume Fraction: 0.500824984
-  Final Max Stress: 6.926999155E-04 MPa
-  Final P-norm Stress: 4.2E-04 MPa (Error: -0.393676842 pct)
-
- *IF  g_stress                          ( =   0.00000     )  LE  
-      tol_constraint                    ( =  0.500000E-01 )  THEN    
-  Stress Constraint: SATISFIED
-
- *ELSE
-
- *ENDIF
-  Final Max Displacement: 886.352084 mm
-  Final P-norm Displacement: 50000 mm (Error: 55.4109917 pct)
-
- *IF  g_displ                           ( =   0.00000     )  LE  
-      tol_constraint                    ( =  0.500000E-01 )  THEN    
-  Displacement Constraint: SATISFIED
-
- *ELSE
-
- *ENDIF
-  ========================================
-
- ***** END OF INPUT ENCOUNTERED *****
-
-
- NUMBER OF WARNING MESSAGES ENCOUNTERED=         13
- NUMBER OF ERROR   MESSAGES ENCOUNTERED=          0
-
-
-
- ***** PROBLEM TERMINATED BY INDICATED ERROR(S) OR BY END OF INPUT DATA *****
-
-+--------- D I S T R I B U T E D   A N S Y S   S T A T I S T I C S ------------+
-
-Release: 2019 R2            Build: 19.4       Update: UP20190416   Platform: WINDOWS x64 
-Date Run: 01/11/2026   Time: 22:27     Process ID: 70556
-Operating System: Windows 10  (Build: 26200)
-
-Processor Model: Intel(R) Core(TM) i9-14900HX
-
-Compiler: Intel(R) FORTRAN Compiler Version 17.0.6  (Build: 20171215)
-          Intel(R) C/C++ Compiler Version 17.0.6  (Build: 20171215)
-          Intel(R) Math Kernel Library Version 2017.0.3 Product Build 20170413
-
-Number of machines requested            :    1
-Total number of cores available         :   32
-Number of physical cores available      :   24
-Number of processes requested           :   12
-Number of threads per process requested :    1
-Total number of cores requested         :   12 (Distributed Memory Parallel)               
-MPI Type: INTELMPI
-MPI Version: Intel(R) MPI Library 2018 Update 3 for Windows* OS
-
-
-GPU Acceleration: Not Requested
-
-Job Name: beso_2020_0
-Input File: C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS\beso_2020.in
-
-  Core                Machine Name   Working Directory
- -----------------------------------------------------
-     0             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     1             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     2             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     3             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     4             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     5             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     6             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     7             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     8             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-     9             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-    10             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
-    11             DESKTOP-DC0ROQP   C:\Users\Suleyman\Documents\01_DER_BESO_OPT\BESO-in-ANSYS
- 
-Latency time from master to core     1 =    0.753 microseconds
-Latency time from master to core     2 =    0.756 microseconds
-Latency time from master to core     3 =    0.749 microseconds
-Latency time from master to core     4 =    0.741 microseconds
-Latency time from master to core     5 =    0.736 microseconds
-Latency time from master to core     6 =    0.755 microseconds
-Latency time from master to core     7 =    0.751 microseconds
-Latency time from master to core     8 =    0.875 microseconds
-Latency time from master to core     9 =    0.899 microseconds
-Latency time from master to core    10 =    0.916 microseconds
-Latency time from master to core    11 =    0.924 microseconds
- 
-Communication speed from master to core     1 =  8583.97 MB/sec
-Communication speed from master to core     2 =  6393.71 MB/sec
-Communication speed from master to core     3 =  5747.00 MB/sec
-Communication speed from master to core     4 =  7204.87 MB/sec
-Communication speed from master to core     5 =  8606.87 MB/sec
-Communication speed from master to core     6 =  8235.28 MB/sec
-Communication speed from master to core     7 =  6674.90 MB/sec
-Communication speed from master to core     8 =  5773.96 MB/sec
-Communication speed from master to core     9 =  6465.90 MB/sec
-Communication speed from master to core    10 =  6098.54 MB/sec
-Communication speed from master to core    11 =  7450.80 MB/sec
-
-Total CPU time for main thread                    :      265.7 seconds
-Total CPU time summed for all threads             :     1799.7 seconds
-
-Elapsed time spent pre-processing model (/PREP7)  :       94.5 seconds
-Elapsed time spent solution - preprocessing       :        1.1 seconds
-Elapsed time spent computing solution             :       13.0 seconds
-Elapsed time spent solution - postprocessing      :        0.7 seconds
-Elapsed time spent post-processing model (/POST1) :      145.5 seconds
- 
-Equation solver used                              :            Sparse (symmetric)
-Equation solver computational rate                :      106.0 Gflops
-
-Maximum total memory used                         :     2506.0 MB
-Maximum total memory allocated                    :    13376.0 MB
-Total physical memory available                   :         32 GB
-
-Total amount of I/O written to disk               :        0.6 GB
-Total amount of I/O read from disk                :        0.4 GB
-
-+------ E N D   D I S T R I B U T E D   A N S Y S   S T A T I S T I C S -------+
-
-
- *---------------------------------------------------------------------------*
- |                                                                           |
- |                       DISTRIBUTED ANSYS RUN COMPLETED                     |
- |                                                                           |
- |---------------------------------------------------------------------------|
- |                                                                           |
- | Ansys 2019 R2               Build 19.4         UP20190416     WINDOWS x64 |
- |                                                                           |
- |---------------------------------------------------------------------------|
- |                                                                           |
- | Database Requested(-db)  1024 MB    Scratch Memory Requested      1024 MB |
- | Maximum Database Used     126 MB    Maximum Scratch Memory Used    201 MB |
- |                                                                           |
- |---------------------------------------------------------------------------|
- |                                                                           |
- |        CP Time      (sec) =       1799.734       Time  =  22:27:49        |
- |        Elapsed Time (sec) =        272.000       Date  =  01/11/2026      |
- |                                                                           |
- *---------------------------------------------------------------------------*
